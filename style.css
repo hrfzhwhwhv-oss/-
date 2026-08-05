@@ -1,0 +1,401 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 20px;
+  background: #fffaf0;
+  color: #3f3f3f;
+  font-family:
+    "Hiragino Maru Gothic ProN",
+    "Hiragino Sans",
+    "Yu Gothic",
+    sans-serif;
+}
+
+button {
+  font-family: inherit;
+}
+
+.app {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  padding: 24px;
+  background: #fffdf8;
+  border: 5px solid #dfc69c;
+  border-radius: 32px;
+  box-shadow: 0 8px 20px rgba(90, 65, 35, 0.15);
+}
+
+.title-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.title-area h1 {
+  margin: 0;
+  color: #5d3a25;
+  font-size: clamp(34px, 5vw, 58px);
+  letter-spacing: 0.08em;
+}
+
+.bottle {
+  font-size: clamp(38px, 5vw, 60px);
+}
+
+.main-panel {
+  display: grid;
+  grid-template-columns: 230px 1fr 220px;
+  gap: 22px;
+  align-items: stretch;
+}
+
+.controls,
+.note-area,
+.waiting-area,
+.melody-area,
+.xylophone-area {
+  border-radius: 24px;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+  background: #e7f5ff;
+  border: 4px solid #9bcce8;
+}
+
+.controls button {
+  min-height: 54px;
+  padding: 10px;
+  background: white;
+  border: 3px solid #76a9c7;
+  border-radius: 16px;
+  color: #385b70;
+  font-size: 19px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.controls button:active {
+  transform: scale(0.97);
+}
+
+.controls .start-button {
+  background: #fff3a9;
+  border-color: #e0b94f;
+  color: #624d11;
+}
+
+.controls .selected {
+  outline: 5px solid rgba(255, 193, 7, 0.35);
+  background: #fff7ce;
+}
+
+.control-title {
+  margin: 8px 0 0;
+  text-align: center;
+  font-size: 21px;
+  font-weight: bold;
+}
+
+.note-area {
+  min-height: 330px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #fff6cf;
+  border: 5px solid #edcc51;
+}
+
+.small-message {
+  margin: 0 0 10px;
+  font-size: clamp(20px, 2.5vw, 30px);
+  font-weight: bold;
+}
+
+.current-note {
+  min-width: 210px;
+  padding: 18px 35px;
+  border: 6px solid rgba(255, 255, 255, 0.95);
+  border-radius: 35px;
+  text-align: center;
+  font-size: clamp(110px, 16vw, 190px);
+  font-weight: bold;
+  line-height: 1;
+  box-shadow:
+    0 0 0 5px rgba(80, 80, 80, 0.12),
+    0 8px 18px rgba(80, 60, 20, 0.18);
+  transition: transform 0.2s, filter 0.2s;
+}
+
+.current-note.flash {
+  transform: scale(1.1);
+  filter: brightness(1.1);
+}
+
+.waiting-area {
+  min-height: 330px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #e9f8e4;
+  border: 5px solid #91c87c;
+}
+
+.waiting-area.playing {
+  background: #fff1bf;
+  border-color: #efbd4c;
+}
+
+.face {
+  font-size: 82px;
+}
+
+.waiting-area p {
+  margin: 12px 0 0;
+  font-size: 35px;
+  font-weight: bold;
+}
+
+.melody-area {
+  margin-top: 22px;
+  padding: 18px;
+  background: #fff8e4;
+  border: 4px solid #e3c995;
+}
+
+.section-title {
+  margin: 0 0 14px;
+  text-align: center;
+  font-size: 25px;
+  font-weight: bold;
+}
+
+.melody {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 10px 4px 18px;
+}
+
+.melody-note {
+  flex: 0 0 68px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 4px solid rgba(50, 50, 50, 0.2);
+  border-radius: 18px;
+  font-size: 27px;
+  font-weight: bold;
+  opacity: 0.55;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.melody-note.current {
+  opacity: 1;
+  transform: scale(1.16);
+  border-color: #343434;
+  box-shadow: 0 0 0 5px rgba(255, 210, 60, 0.35);
+}
+
+.melody-note.finished {
+  opacity: 0.25;
+}
+
+.rest-note {
+  background: white;
+  color: #777;
+}
+
+.xylophone-area {
+  margin-top: 22px;
+  padding: 20px;
+  background: #edf8ff;
+  border: 4px solid #a8d1e9;
+}
+
+.high-label {
+  margin: 5px 0 4px;
+  text-align: center;
+  color: #5b5b5b;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.high-xylophone {
+  display: flex;
+  justify-content: center;
+  gap: 9px;
+  min-height: 125px;
+  padding: 8px 5px 12px;
+}
+
+.xylophone {
+  min-height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  overflow-x: auto;
+  padding: 20px 5px;
+}
+
+.xylophone-key {
+  width: 105px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 18px;
+  border: 5px solid rgba(70, 70, 70, 0.25);
+  border-radius: 18px;
+  color: #292929;
+  font-size: clamp(22px, 3vw, 34px);
+  font-weight: bold;
+  box-shadow: 0 8px 0 rgba(80, 80, 80, 0.15);
+  transition: transform 0.2s, filter 0.2s;
+}
+
+.high-key {
+  width: 90px;
+  height: 105px;
+  font-size: 25px;
+  padding-bottom: 12px;
+}
+
+.xylophone-key.active {
+  transform: translateY(-16px) scale(1.08);
+  filter: brightness(1.2);
+  border-color: white;
+  box-shadow:
+    0 0 0 6px #343434,
+    0 0 25px rgba(255, 215, 70, 0.9);
+}
+
+.key-do {
+  height: 220px;
+  background: #f35b5b;
+}
+
+.key-re {
+  height: 205px;
+  background: #f59b45;
+}
+
+.key-mi {
+  height: 190px;
+  background: #f5d84c;
+}
+
+.key-fa {
+  height: 175px;
+  background: #61c875;
+}
+
+.key-so {
+  height: 160px;
+  background: #69cde6;
+}
+
+.key-la {
+  height: 145px;
+  background: #3475d1;
+  color: white;
+}
+
+.key-si {
+  height: 130px;
+  background: #a266c7;
+  color: white;
+}
+
+.high-key.key-do,
+.high-key.key-re,
+.high-key.key-mi {
+  height: 105px;
+}
+
+.note-do {
+  background: #f35b5b;
+}
+
+.note-re {
+  background: #f59b45;
+}
+
+.note-mi {
+  background: #f5d84c;
+}
+
+.note-fa {
+  background: #61c875;
+}
+
+.note-so {
+  background: #69cde6;
+}
+
+.note-la {
+  background: #3475d1;
+  color: white;
+}
+
+.note-si {
+  background: #a266c7;
+  color: white;
+}
+
+.bottom-message {
+  margin: 10px 0 0;
+  text-align: center;
+  color: #346c9b;
+  font-size: clamp(22px, 3vw, 34px);
+  font-weight: bold;
+}
+
+@media (max-width: 850px) {
+  body {
+    padding: 8px;
+  }
+
+  .app {
+    padding: 14px;
+  }
+
+  .main-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .controls {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .control-title {
+    grid-column: 1 / -1;
+  }
+
+  .note-area,
+  .waiting-area {
+    min-height: 230px;
+  }
+
+  .waiting-area {
+    display: none;
+  }
+
+  .xylophone,
+  .high-xylophone {
+    justify-content: flex-start;
+    overflow-x: auto;
+  }
+}

@@ -1,0 +1,91 @@
+<<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ちゃいろのこびん</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <main class="app">
+
+    <header class="title-area">
+      <span class="bottle">🏺</span>
+      <h1>ちゃいろのこびん</h1>
+      <span class="bottle">🏺</span>
+    </header>
+
+    <section class="main-panel">
+
+      <div class="controls">
+        <button id="startButton" class="start-button">▶ スタート</button>
+        <button id="pauseButton">⏸ いちじていし</button>
+        <button id="stopButton">⏹ ストップ</button>
+
+        <p class="control-title">はやさ</p>
+
+        <button class="speed-button" data-speed="1600">
+          🐢 ゆっくり
+        </button>
+
+        <button class="speed-button selected" data-speed="1100">
+          🚶 ふつう
+        </button>
+
+        <button class="speed-button" data-speed="700">
+          🏃 はやく
+        </button>
+      </div>
+
+      <div class="note-area">
+        <p class="small-message">ひかる おとを たたこう</p>
+
+        <div id="currentNote" class="current-note note-mi">
+          み
+        </div>
+      </div>
+
+      <div id="waitingArea" class="waiting-area">
+        <div class="face">😊</div>
+        <p id="waitingText">まってね</p>
+      </div>
+
+    </section>
+
+    <section class="melody-area">
+      <p class="section-title">おとの ならび</p>
+      <div id="melody" class="melody"></div>
+    </section>
+
+    <section class="xylophone-area">
+      <p class="section-title">もっきんを たたく ところ</p>
+
+      <p class="high-label">たかい おと</p>
+
+      <div class="high-xylophone">
+        <div class="xylophone-key high-key key-do" data-note="ど↑">ど↑</div>
+        <div class="xylophone-key high-key key-re" data-note="れ↑">れ↑</div>
+        <div class="xylophone-key high-key key-mi" data-note="み↑">み↑</div>
+      </div>
+
+      <div class="xylophone">
+        <div class="xylophone-key key-do" data-note="ど">ど</div>
+        <div class="xylophone-key key-re" data-note="れ">れ</div>
+        <div class="xylophone-key key-mi" data-note="み">み</div>
+        <div class="xylophone-key key-fa" data-note="ふぁ">ふぁ</div>
+        <div class="xylophone-key key-so" data-note="そ">そ</div>
+        <div class="xylophone-key key-la" data-note="ら">ら</div>
+        <div class="xylophone-key key-si" data-note="し">し</div>
+      </div>
+
+      <p class="bottom-message">
+        ♪ ひかる ところの おとを たたこう！
+      </p>
+    </section>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
