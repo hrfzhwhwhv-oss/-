@@ -411,3 +411,29 @@ button { font-family: inherit; }
   .waiting-area { display: none; }
   .piano { justify-content: flex-start; }
 }
+
+.controls .accompaniment-button { background:#fff3a9; border-color:#e0b94f; color:#624d11; }
+.controls .accompaniment-button.off { background:white; border-color:#aaa; color:#666; outline:none; }
+.accompaniment-status { margin:-5px 0 4px; text-align:center; font-size:14px; font-weight:bold; color:#6b6257; }
+
+.timbre-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.controls .timbre-button {
+  min-height: 48px;
+  padding: 7px 5px;
+  background: white;
+  border: 3px solid #9aa7b0;
+  border-radius: 14px;
+  color: #48545c;
+  font-size: 15px;
+  font-weight: bold;
+}
+.controls .timbre-button.selected-timbre {
+  background: #fff3a9;
+  border-color: #e0b94f;
+  color: #624d11;
+  outline: 4px solid rgba(255,193,7,.25);
+}
