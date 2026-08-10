@@ -687,3 +687,232 @@ button { font-family: inherit; }
     padding-top: 16px !important;
   }
 }
+
+
+/* ===== iPad横向き：実機1画面収まり調整 ===== */
+@media (orientation: landscape) and (min-width: 850px) {
+  body {
+    padding: 3px !important;
+  }
+
+  .app {
+    width: min(1500px, 100%) !important;
+    padding: 6px 10px !important;
+    border-width: 2px !important;
+    border-radius: 18px !important;
+  }
+
+  /* 上部タイトルを少しだけ圧縮 */
+  .title-area {
+    margin-bottom: 4px !important;
+    gap: 8px !important;
+  }
+
+  .title-area h1 {
+    font-size: 34px !important;
+    line-height: 1 !important;
+  }
+
+  .bottle {
+    font-size: 30px !important;
+  }
+
+  /* 楽器・パート選択 */
+  .selection-area {
+    margin-bottom: 6px !important;
+    padding: 6px 10px !important;
+    gap: 10px !important;
+    border-width: 2px !important;
+    border-radius: 14px !important;
+  }
+
+  .selection-divider {
+    height: 54px !important;
+  }
+
+  .selection-area .mode-title {
+    margin-bottom: 4px !important;
+    font-size: 15px !important;
+    line-height: 1 !important;
+  }
+
+  .selection-area .instrument-button,
+  .selection-area .part-button {
+    min-height: 36px !important;
+    padding: 4px 9px !important;
+    font-size: 13px !important;
+    border-width: 2px !important;
+    border-radius: 10px !important;
+  }
+
+  /* 以前の大きな最小高さを解除 */
+  .main-panel {
+    min-height: 0 !important;
+    grid-template-columns: 170px minmax(0,1fr) 185px !important;
+    gap: 8px !important;
+  }
+
+  /* 左側操作パネル */
+  .controls {
+    gap: 4px !important;
+    padding: 7px !important;
+    border-width: 2px !important;
+    border-radius: 14px !important;
+  }
+
+  .controls button {
+    min-height: 30px !important;
+    padding: 3px 5px !important;
+    font-size: 12px !important;
+    border-width: 2px !important;
+    border-radius: 9px !important;
+  }
+
+  .control-title {
+    margin: 2px 0 0 !important;
+    font-size: 13px !important;
+    line-height: 1.05 !important;
+  }
+
+  .accompaniment-status {
+    margin: -1px 0 0 !important;
+    font-size: 9px !important;
+    line-height: 1.15 !important;
+  }
+
+  /* 中央は見やすさを保ち、余白だけ圧縮 */
+  .note-area {
+    min-height: 0 !important;
+    padding: 8px 10px !important;
+    border-width: 3px !important;
+    border-radius: 15px !important;
+    justify-content: center !important;
+  }
+
+  .note-area .small-message {
+    font-size: 32px !important;
+    margin: 0 0 7px !important;
+    line-height: 1.05 !important;
+  }
+
+  .note-area .current-note {
+    font-size: 104px !important;
+    min-width: 175px !important;
+    padding: 9px 28px !important;
+    border-width: 4px !important;
+    border-radius: 22px !important;
+  }
+
+  .waiting-area {
+    min-height: 0 !important;
+    padding: 6px !important;
+    border-width: 3px !important;
+    border-radius: 15px !important;
+  }
+
+  .face {
+    font-size: 46px !important;
+  }
+
+  .waiting-area p {
+    margin-top: 4px !important;
+    font-size: 18px !important;
+  }
+
+  /* おとのならび */
+  .melody-area {
+    margin-top: 6px !important;
+    padding: 4px 8px !important;
+    border-width: 2px !important;
+    border-radius: 12px !important;
+  }
+
+  .section-title {
+    margin-bottom: 2px !important;
+    font-size: 15px !important;
+    line-height: 1 !important;
+  }
+
+  .melody {
+    gap: 4px !important;
+    padding: 2px 1px 4px !important;
+  }
+
+  .melody-note {
+    flex-basis: 46px !important;
+    height: 38px !important;
+    font-size: 14px !important;
+    border-width: 2px !important;
+    border-radius: 8px !important;
+  }
+
+  /* 最下部の楽器鍵盤を1画面内へ */
+  .xylophone-area,
+  .bass-area {
+    margin-top: 5px !important;
+    padding: 4px 8px !important;
+    border-width: 2px !important;
+    border-radius: 12px !important;
+  }
+
+  #colorInstrumentArea .single-key-row {
+    padding-top: 10px !important;
+    padding-bottom: 2px !important;
+    gap: 5px !important;
+  }
+
+  .single-key-row .xylophone-key {
+    width: 58px !important;
+    height: 70px !important;
+    flex-basis: 58px !important;
+    font-size: 25px !important;
+    border-width: 2px !important;
+    border-radius: 10px !important;
+  }
+
+  .single-key-row .high-inline {
+    font-size: 21px !important;
+  }
+
+  .single-key-row .bell-key {
+    width: 66px !important;
+    height: 70px !important;
+    flex-basis: 66px !important;
+    font-size: 25px !important;
+  }
+
+  .bottom-message {
+    margin-top: 1px !important;
+    padding: 1px 5px !important;
+    font-size: 20px !important;
+    line-height: 1 !important;
+  }
+
+  .piano {
+    padding: 2px !important;
+  }
+
+  .white-key {
+    width: 68px !important;
+    height: 86px !important;
+    flex-basis: 68px !important;
+    padding-bottom: 5px !important;
+    font-size: 20px !important;
+    border-width: 2px !important;
+  }
+
+  .piano-key-group {
+    width: 68px !important;
+    height: 86px !important;
+    flex-basis: 68px !important;
+  }
+
+  .black-key {
+    width: 40px !important;
+    height: 54px !important;
+    right: -21px !important;
+    padding-bottom: 3px !important;
+    font-size: 13px !important;
+    border-width: 2px !important;
+  }
+}
