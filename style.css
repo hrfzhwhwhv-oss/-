@@ -437,3 +437,253 @@ button { font-family: inherit; }
   color: #624d11;
   outline: 4px solid rgba(255,193,7,.25);
 }
+
+.instrument-hidden { display:none !important; }
+
+.selection-area{
+ display:grid;grid-template-columns:1fr 2px 1.35fr;align-items:center;gap:14px;
+ margin-bottom:10px;padding:10px 14px;background:#eef8ee;border:3px solid #a8cfa8;border-radius:18px
+}
+.selection-divider{width:2px;height:70px;background:#c8ddc4}
+.selection-area .mode-title{margin:0 0 7px;font-size:18px}
+.selection-area .mode-buttons{flex-wrap:nowrap;gap:8px}
+.selection-area .instrument-button,.selection-area .part-button{
+ min-height:44px;padding:7px 12px;border-width:2px;border-radius:12px;font-size:16px;white-space:nowrap
+}
+.selection-area .mode-message{display:none}
+
+@media (orientation:landscape) and (min-width:850px){
+ body{padding:6px}
+ .app{width:min(1500px,100%);padding:10px 14px;border-width:3px;border-radius:22px}
+ .title-area{margin-bottom:8px}
+ .title-area h1{font-size:42px}
+ .bottle{font-size:40px}
+ .main-panel{grid-template-columns:185px minmax(0,1fr) 210px;gap:12px}
+ .controls{gap:7px;padding:10px}
+ .controls button{min-height:38px;padding:5px;font-size:15px}
+ .control-title{margin:3px 0 0;font-size:16px}
+ .accompaniment-status{font-size:11px;line-height:1.25}
+ .note-area,.waiting-area{min-height:255px}
+ .small-message{font-size:20px}
+ .current-note{min-width:130px;padding:8px 22px;font-size:76px}
+ .face{font-size:56px}.waiting-area p{font-size:22px}
+ .melody-area{margin-top:10px;padding:7px 10px}
+ .section-title{margin-bottom:4px;font-size:18px}
+ .melody{gap:6px;padding:3px 2px 7px}
+ .melody-note{flex-basis:55px;height:48px;font-size:17px;border-width:2px;border-radius:10px}
+ .xylophone-area,.bass-area{margin-top:10px;padding:8px 12px}
+ .high-label{font-size:14px;margin:0}
+ .high-xylophone,.xylophone{gap:7px;padding:3px}
+ .xylophone{min-height:125px;align-items:flex-end}
+ .xylophone-key{width:68px;padding:0 3px 8px;border-width:3px;border-radius:12px;font-size:20px}
+ .high-key{width:58px;height:52px!important;padding-bottom:5px;font-size:16px}
+ .key-do{height:105px}.key-re{height:98px}.key-mi{height:91px}.key-fa{height:84px}
+ .key-so{height:77px}.key-la{height:70px}.key-si{height:63px}
+ .bottom-message{margin-top:4px;font-size:18px}
+ .piano{min-height:0;padding:5px;gap:0}
+ .white-key{width:76px;height:112px;flex-basis:76px;padding-bottom:8px;border-width:3px;font-size:19px}
+ .piano-key-group{width:76px;height:112px;flex-basis:76px}
+ .black-key{width:46px;height:70px;right:-24px;padding-bottom:5px;border-width:2px;font-size:13px}
+}
+
+
+/* ===== 鍵盤を1列に統一 ===== */
+.single-key-row {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 7px;
+  padding: 8px 4px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.single-key-row .xylophone-key {
+  width: 68px;
+  height: 92px !important;
+  flex: 0 0 68px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-width: 3px;
+  border-radius: 12px;
+  font-size: 20px;
+}
+
+.single-key-row .high-inline {
+  height: 92px !important;
+}
+
+.single-key-row .bell-key {
+  width: 78px;
+  height: 92px !important;
+  flex-basis: 78px;
+}
+
+@media (orientation: landscape) and (min-width: 850px) {
+  .xylophone-area {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .single-key-row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 1100px) and (orientation: landscape) {
+  .single-key-row .xylophone-key {
+    width: 58px;
+    flex-basis: 58px;
+    font-size: 18px;
+  }
+
+  .single-key-row .bell-key {
+    width: 68px;
+    flex-basis: 68px;
+  }
+}
+
+
+/* 楽器切替：選んでいない鍵盤列は必ず非表示 */
+.single-key-row.hidden {
+  display: none !important;
+}
+
+
+/* ===== 「ひかる ところの おとを たたこう！」を大きく、余白を少なく ===== */
+.xylophone-area,
+.bass-area {
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+}
+
+.single-key-row {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+}
+
+.bottom-message {
+  margin: 2px 0 0 !important;
+  padding: 4px 8px !important;
+  font-size: clamp(26px, 2.7vw, 34px) !important;
+  line-height: 1.1 !important;
+  font-weight: 800 !important;
+}
+
+@media (orientation: landscape) and (min-width: 850px) {
+  .bottom-message {
+    font-size: 30px !important;
+  }
+}
+
+
+/* ===== 音階（ど・れ・み…）を大きく見やすく ===== */
+.single-key-row .xylophone-key {
+  font-size: 30px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+}
+
+.single-key-row .high-inline {
+  font-size: 27px !important;
+}
+
+.single-key-row .bell-key {
+  font-size: 30px !important;
+  font-weight: 800 !important;
+}
+
+/* ベース鍵盤の音名も少し大きく */
+.white-key {
+  font-size: 25px !important;
+  font-weight: 800 !important;
+}
+
+.black-key {
+  font-size: 17px !important;
+  font-weight: 800 !important;
+}
+
+@media (max-width: 1100px) and (orientation: landscape) {
+  .single-key-row .xylophone-key {
+    font-size: 26px !important;
+  }
+
+  .single-key-row .high-inline {
+    font-size: 23px !important;
+  }
+
+  .single-key-row .bell-key {
+    font-size: 26px !important;
+  }
+
+  .white-key {
+    font-size: 22px !important;
+  }
+
+  .black-key {
+    font-size: 15px !important;
+  }
+}
+
+
+/* ===== 中央の案内文字を大きくする（余白は維持） ===== */
+.note-area .small-message {
+  font-size: clamp(30px, 3.4vw, 46px) !important;
+  line-height: 1.15 !important;
+  font-weight: 800 !important;
+  margin-bottom: 12px !important;
+}
+
+/* 大きな現在音も少しだけ拡大 */
+.note-area .current-note {
+  font-size: clamp(92px, 9vw, 138px) !important;
+  min-width: 190px !important;
+  padding: 14px 34px !important;
+}
+
+/* iPad横向きでは十分大きく見えるよう固定値を強めに */
+@media (orientation: landscape) and (min-width: 850px) {
+  .note-area .small-message {
+    font-size: 38px !important;
+  }
+
+  .note-area .current-note {
+    font-size: 112px !important;
+  }
+}
+
+
+/* ===== 下段鍵盤：見出しを省き、光った時に上が切れないよう調整 ===== */
+#colorInstrumentArea #keyAreaTitle {
+  display: none !important;
+}
+
+#colorInstrumentArea {
+  overflow: visible !important;
+}
+
+#colorInstrumentArea .single-key-row {
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  padding-top: 14px !important;
+  margin-top: 0 !important;
+}
+
+#colorInstrumentArea .xylophone-key {
+  overflow: visible !important;
+}
+
+/* 光って少し大きくなる時の上側スペースを確保 */
+#colorInstrumentArea .xylophone-key.active-key,
+#colorInstrumentArea .xylophone-key.active {
+  transform-origin: center center !important;
+}
+
+@media (orientation: landscape) and (min-width: 850px) {
+  #colorInstrumentArea .single-key-row {
+    padding-top: 16px !important;
+  }
+}

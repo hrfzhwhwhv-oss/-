@@ -229,7 +229,10 @@ function showCurrentEvent() {
       const key = document.querySelector(`[data-bass-note="${note}"]`);
       if (key) key.classList.add("active-bass");
     } else {
-      const key = document.querySelector(`.xylophone-key[data-note="${note}"]`);
+      const keyArea = selectedInstrument === "bells"
+        ? document.getElementById("bellKeys")
+        : document.getElementById("xylophoneKeys");
+      const key = keyArea?.querySelector(`.xylophone-key[data-note="${note}"]`);
       if (key) {
         key.classList.add("active");
         key.textContent = `${note} ${number}`;
@@ -241,7 +244,10 @@ function showCurrentEvent() {
     waitingArea.classList.remove("playing");
     waitingText.innerHTML = `${event.part}が えんそう中<br>${partNumber(selectedPart)}は まってね`;
 
-    const key = document.querySelector(`.xylophone-key[data-note="${note}"]`);
+    const keyArea = selectedInstrument === "bells"
+        ? document.getElementById("bellKeys")
+        : document.getElementById("xylophoneKeys");
+      const key = keyArea?.querySelector(`.xylophone-key[data-note="${note}"]`);
     if (key) showPartnerKey(key, note, number);
   }
 
@@ -949,3 +955,40 @@ document.querySelectorAll(".part-button").forEach((button) => {
 createMelodyDisplay();
 updateModeMessage();
 stopSong();
+
+
+function applyCompactInstrumentKeyboard() {
+  const colorArea = document.getElementById("colorInstrumentArea");
+  const bassArea = document.getElementById("bassKeyboardArea");
+  const xylophoneKeys = document.getElementById("xylophoneKeys");
+  const bellKeys = document.getElementById("bellKeys");
+  const title = document.getElementById("keyAreaTitle");
+  const partTitle = document.getElementById("partSelectionTitle");
+
+  if (selectedInstrument === "bass") {
+    colorArea?.classList.add("hidden");
+    bassArea?.classList.remove("hidden");
+    if (partTitle) partTitle.textContent = "パート（ベース）";
+    return;
+  }
+
+  bassArea?.classList.add("hidden");
+  colorArea?.classList.remove("hidden");
+
+  if (selectedInstrument === "bells") {
+    xylophoneKeys?.classList.add("hidden");
+    bellKeys?.classList.remove("hidden");
+    if (title) title.textContent = "ハンドベルを ならす ところ";
+    if (partTitle) partTitle.textContent = "パートを えらぶ（ハンドベル）";
+  } else {
+    bellKeys?.classList.add("hidden");
+    xylophoneKeys?.classList.remove("hidden");
+    if (title) title.textContent = "もっきんを たたく ところ";
+    if (partTitle) partTitle.textContent = "パートを えらぶ（もっきん）";
+  }
+}
+
+document.querySelectorAll(".instrument-button").forEach(btn => {
+  btn.addEventListener("click", () => requestAnimationFrame(applyCompactInstrumentKeyboard));
+});
+window.addEventListener("DOMContentLoaded", applyCompactInstrumentKeyboard);
