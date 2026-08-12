@@ -96,6 +96,75 @@ let timer = null;
 let speed = 700;
 let audioContext = null;
 
+let lessonMode = "practice";
+const pageRole = new URLSearchParams(window.location.search).get("role") || "student";
+const isMacAudioSource = pageRole === "audio";
+const MODE_STORAGE_KEY = "chairo-kobin-lesson-mode-v3";
+
+/*
+  音を出すかどうかの最終判定
+  - Mac伴奏画面 (?role=audio) は常に音あり
+  - 通常iPadは練習モードだけ音あり
+  - 合奏モードのiPadは完全に無音
+*/
+function shouldOutputAudio() {
+  return isMacAudioSource || lessonMode === "practice";
+}
+
+function setLessonMode(mode) {
+  lessonMode = isMacAudioSource
+    ? "practice"
+    : (mode === "ensemble" ? "ensemble" : "practice");
+
+  const practiceButton = document.getElementById("practiceModeButton");
+  const ensembleButton = document.getElementById("ensembleModeButton");
+  const status = document.getElementById("lessonModeStatus");
+
+  if (isMacAudioSource) {
+    if (practiceButton) {
+      practiceButton.textContent = "🔊 Mac伴奏音源";
+      practiceButton.classList.add("selected-mode");
+    }
+    if (ensembleButton) ensembleButton.style.display = "none";
+    if (status) status.textContent = "このMacだけ音が鳴ります";
+    return;
+  }
+
+  practiceButton?.classList.toggle("selected-mode", lessonMode === "practice");
+  ensembleButton?.classList.toggle("selected-mode", lessonMode === "ensemble");
+
+  if (status) {
+    status.textContent = lessonMode === "practice"
+      ? "iPadから音が鳴ります"
+      : "iPadは無音・Macの伴奏で合奏します";
+  }
+
+  try {
+    localStorage.setItem(MODE_STORAGE_KEY, lessonMode);
+  } catch (_) {}
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  const practiceButton = document.getElementById("practiceModeButton");
+  const ensembleButton = document.getElementById("ensembleModeButton");
+
+  if (isMacAudioSource) {
+    document.querySelector(".lesson-mode-area")?.classList.add("mac-audio-mode");
+    setLessonMode("practice");
+    return;
+  }
+
+  practiceButton?.addEventListener("click", () => setLessonMode("practice"));
+  ensembleButton?.addEventListener("click", () => setLessonMode("ensemble"));
+
+  let saved = "practice";
+  try {
+    saved = localStorage.getItem(MODE_STORAGE_KEY) || "practice";
+  } catch (_) {}
+
+  setLessonMode(saved);
+});
+
 function partNameFromMode() {
   if (selectedInstrument === "bass") return "ベース⑥";
   if (selectedMode === "part1") return selectedInstrument === "xylophone" ? "木琴①" : "ベル①";
@@ -162,6 +231,7 @@ function updateMelodyPosition() {
 }
 
 function playTone(frequency, duration = 1) {
+  if (!shouldOutputAudio()) return;
   if (!audioContext) audioContext = new AudioContext();
 
   const oscillator = audioContext.createOscillator();
@@ -204,8 +274,34 @@ function showCurrentEvent() {
   }
 
   const note = event.note;
-  const selectedPart = partNameFromMode();
-  const isMyTurn = selectedInstrument === "bass" || selectedMode === "all" || event.part === selectedPart;
+
+  // 表示だけは、画面上で実際に選択されているパートボタンを使う。
+  // selectedMode は変更しないので、v3で正常だった音・伴奏・同期には影響しない。
+  const visibleGroup = selectedInstrument === "xylophone"
+    ? xylophoneModeButtons
+    : selectedInstrument === "bells"
+      ? bellModeButtons
+      : bassModeButtons;
+
+  const visibleButton = visibleGroup?.querySelector(".part-button.selected-mode");
+  const visibleMode = visibleButton?.dataset?.mode || selectedMode;
+
+  let visiblePart = null;
+  if (selectedInstrument === "bass") {
+    visiblePart = "ベース⑥";
+  } else if (visibleMode === "part1") {
+    visiblePart = selectedInstrument === "xylophone" ? "木琴①" : "ベル①";
+  } else if (visibleMode === "part2") {
+    visiblePart = selectedInstrument === "xylophone" ? "木琴②" : "ベル②";
+  } else if (visibleMode === "part3") {
+    visiblePart = "ベル③";
+  }
+
+  const selectedPart = visiblePart;
+  const isMyTurn =
+    selectedInstrument === "bass" ||
+    visibleMode === "all" ||
+    event.part === selectedPart;
 
   if (note === "やすみ") {
     currentNoteElement.textContent = "やすみ";
@@ -412,6 +508,7 @@ function clearAccompanimentTimers() {
 
 /* Web Audioだけで、少しピアノらしい減衰音を作る */
 function playElectronicPianoTone(frequency, lengthMs = 950, volume = 0.10) {
+  if (!shouldOutputAudio()) return;
   if (!audioContext) audioContext = new AudioContext();
 
   const now = audioContext.currentTime;
@@ -469,6 +566,7 @@ function playElectronicPianoTone(frequency, lengthMs = 950, volume = 0.10) {
   noise.start(now);
   noise.stop(now + 0.03);
 }function playCountClick(strong = false) {
+  if (!shouldOutputAudio()) return;
   if (!audioContext) audioContext = new AudioContext();
 
   const now = audioContext.currentTime;
@@ -519,6 +617,7 @@ function playElectronicPianoTone(frequency, lengthMs = 950, volume = 0.10) {
 const selectedTimbre = "piano";
 
 function playMarimbaTone(frequency, lengthMs = 700, volume = 0.10) {
+  if (!shouldOutputAudio()) return;
   if (!audioContext) audioContext = new AudioContext();
   const now = audioContext.currentTime;
   const duration = Math.max(0.22, Math.min(0.85, lengthMs / 1000));
@@ -540,6 +639,7 @@ function playMarimbaTone(frequency, lengthMs = 700, volume = 0.10) {
 }
 
 function playOrganTone(frequency, lengthMs = 850, volume = 0.10) {
+  if (!shouldOutputAudio()) return;
   if (!audioContext) audioContext = new AudioContext();
   const now = audioContext.currentTime;
   const duration = Math.max(0.35, lengthMs / 1000);
@@ -563,6 +663,7 @@ function playOrganTone(frequency, lengthMs = 850, volume = 0.10) {
 }
 
 function playSoftSynthTone(frequency, lengthMs = 900, volume = 0.10) {
+  if (!shouldOutputAudio()) return;
   if (!audioContext) audioContext = new AudioContext();
   const now = audioContext.currentTime;
   const duration = Math.max(0.4, lengthMs / 1000);
@@ -600,6 +701,7 @@ function playSoftSynthTone(frequency, lengthMs = 900, volume = 0.10) {
 }
 
 function playPianoTone(frequency, lengthMs = 950, volume = 0.10) {
+  if (!shouldOutputAudio()) return;
   if (selectedTimbre === "marimba") {
     playMarimbaTone(frequency, lengthMs, volume);
   } else if (selectedTimbre === "organ") {
@@ -618,6 +720,7 @@ function chordForBar(bar) {
 }
 
 function playPianoChord(name, soft = true) {
+  if (!shouldOutputAudio()) return;
   const chord = chordFrequencies[name] || [];
   chord.forEach((f, index) => {
     const delay = index * 35;
@@ -666,6 +769,7 @@ function accompanimentBassEvents(bar) {
 }
 
 function playHiHat(volume = 0.032) {
+  if (!shouldOutputAudio()) return;
   if (!audioContext) audioContext = new AudioContext();
   const now = audioContext.currentTime;
 
@@ -699,6 +803,7 @@ function playHiHat(volume = 0.032) {
 }
 
 function playSoftKick(volume = 0.055) {
+  if (!shouldOutputAudio()) return;
   if (!audioContext) audioContext = new AudioContext();
   const now = audioContext.currentTime;
 
@@ -717,6 +822,7 @@ function playSoftKick(volume = 0.055) {
 }
 
 function playWoodPerc(volume = 0.030) {
+  if (!shouldOutputAudio()) return;
   if (!audioContext) audioContext = new AudioContext();
   const now = audioContext.currentTime;
 
@@ -734,6 +840,7 @@ function playWoodPerc(volume = 0.030) {
 }
 
 function playFinishChord() {
+  if (!shouldOutputAudio()) return;
   // シンバルなし。低いドを含むCメジャー和音を広く重ねて、
   // ピアノだけで「終わった」感じを出す。
   const duration = Math.max(1500, speed * 2.4);
@@ -956,6 +1063,49 @@ createMelodyDisplay();
 updateModeMessage();
 stopSong();
 
+/* ===== 先生コントローラーからの指示を受け取る ===== */
+function applyTeacherCommand(message) {
+  if (!message || !message.command) return;
+
+  switch (message.command) {
+    case "start":
+      startSong();
+      break;
+
+    case "pause":
+      pauseSong();
+      break;
+
+    case "stop":
+      stopSong();
+      break;
+
+    case "speed": {
+      const requestedSpeed = String(message.data?.speed ?? "");
+      const targetButton = Array.from(speedButtons).find(
+        (button) => button.dataset.speed === requestedSpeed
+      );
+      if (targetButton) {
+        changeSpeed(requestedSpeed, targetButton);
+      }
+      break;
+    }
+
+    case "accompaniment": {
+      const shouldBeOn = Boolean(message.data?.on);
+      if (accompanimentOn !== shouldBeOn) {
+        accompanimentButton.click();
+      }
+      break;
+    }
+  }
+}
+
+if (window.ChairoSync) {
+  window.ChairoSync.onCommand(applyTeacherCommand);
+}
+
+
 
 function applyCompactInstrumentKeyboard() {
   const colorArea = document.getElementById("colorInstrumentArea");
@@ -992,3 +1142,69 @@ document.querySelectorAll(".instrument-button").forEach(btn => {
   btn.addEventListener("click", () => requestAnimationFrame(applyCompactInstrumentKeyboard));
 });
 window.addEventListener("DOMContentLoaded", applyCompactInstrumentKeyboard);
+
+
+/* ===== Mac親機からの複数iPad同期 ===== */
+const handledNetworkCommands = new Set();
+
+function applyMacNetworkCommand(message) {
+  if (!message || !message.command || !message.id) return;
+  if (handledNetworkCommands.has(message.id)) return;
+
+  handledNetworkCommands.add(message.id);
+  if (handledNetworkCommands.size > 50) {
+    const first = handledNetworkCommands.values().next().value;
+    handledNetworkCommands.delete(first);
+  }
+
+  if (message.command === "start" && message.data?.startAt) {
+    const startAtServer = Number(message.data.startAt);
+
+    const scheduleStart = () => {
+      const targetLocal = window.ChairoNetwork?.serverToLocalTime
+        ? window.ChairoNetwork.serverToLocalTime(startAtServer)
+        : startAtServer;
+
+      const remaining = Math.max(0, targetLocal - Date.now());
+
+      setTimeout(() => {
+        startSong();
+      }, remaining);
+    };
+
+    // If clock calibration is still finishing, do one quick refresh first.
+    if (window.ChairoNetwork && !window.ChairoNetwork.clockReady) {
+      window.ChairoNetwork.syncClock(5)
+        .finally(scheduleStart);
+    } else {
+      scheduleStart();
+    }
+
+    return;
+  }
+
+  applyTeacherCommand(message);
+}
+
+if (window.ChairoNetwork) {
+  window.ChairoNetwork.onCommand(applyMacNetworkCommand);
+}
+
+
+/* ===== iPad Safari 音チェック（既存の教材音を1回鳴らすだけ） ===== */
+window.addEventListener("DOMContentLoaded", () => {
+  const button = document.getElementById("soundCheckButton");
+  const status = document.getElementById("soundCheckStatus");
+
+  button?.addEventListener("click", () => {
+    try {
+      playTone(261.63);
+
+      button.textContent = "✅ 音チェックOK";
+      button.classList.add("ready");
+      if (status) status.textContent = "先生のスタートを待ってね";
+    } catch (error) {
+      if (status) status.textContent = "もう一度押してね";
+    }
+  });
+});

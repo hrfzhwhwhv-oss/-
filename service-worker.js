@@ -1,4 +1,4 @@
-const CACHE_NAME = "chairo-kobin-v1";
+const CACHE_NAME = "chairo-kobin-v13-visual-part-only";
 
 const APP_ASSETS = [
   "./",
@@ -7,7 +7,12 @@ const APP_ASSETS = [
   "./script.js",
   "./manifest.json",
   "./icon-192.png",
-  "./icon-512.png"
+  "./icon-512.png",
+  "./teacher-controller.js",
+  "./teacher-style.css",
+  "./teacher-controller.html",
+  "./sync.js",
+  "./network-sync.js"
 ];
 
 self.addEventListener("install", (event) => {
@@ -31,6 +36,9 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
+  const url = new URL(event.request.url);
+  if (url.pathname.startsWith("/api/")) return;
+
   if (event.request.method !== "GET") return;
 
   event.respondWith(

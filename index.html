@@ -52,6 +52,26 @@
       </div>
     </section>
 
+    
+    <section class="sound-check-area">
+      <button id="soundCheckButton" class="sound-check-button" type="button">🔊 音チェック</button>
+      <span id="soundCheckStatus">最初に1回押してね</span>
+    </section>
+
+    
+    <section class="student-audio-notice">
+      <strong>🔇 生徒iPadは音量0で使います</strong>
+      <span>伴奏はMac 1台だけから鳴らします</span>
+    </section>
+
+    
+    <section class="lesson-mode-area">
+      <span class="lesson-mode-label">つかいかた</span>
+      <button id="practiceModeButton" class="lesson-mode-button selected-mode" type="button">🔊 れんしゅうモード</button>
+      <button id="ensembleModeButton" class="lesson-mode-button" type="button">🔇 がっそうモード</button>
+      <span id="lessonModeStatus">iPadから音が鳴ります</span>
+    </section>
+
     <section class="main-panel">
       <div class="controls">
         <button id="startButton" class="start-button">▶ スタート</button>
@@ -128,6 +148,8 @@
     </section>
   </main>
 
+  <script src="sync.js"></script>
+  <script src="network-sync.js"></script>
   <script src="script.js"></script>
 
   <script>

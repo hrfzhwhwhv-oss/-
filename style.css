@@ -916,3 +916,132 @@ button { font-family: inherit; }
     border-width: 2px !important;
   }
 }
+
+
+.sound-check-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin: 0 0 4px;
+  min-height: 34px;
+}
+
+.sound-check-button {
+  padding: 4px 12px;
+  border: 2px solid #e0b94f;
+  border-radius: 10px;
+  background: #fff3a9;
+  color: #624d11;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.sound-check-button.ready {
+  background: #e9f8eb;
+  border-color: #65ad72;
+  color: #356540;
+}
+
+#soundCheckStatus {
+  font-size: 11px;
+  font-weight: 800;
+  color: #506775;
+}
+
+@media (orientation: landscape) and (min-width: 850px) {
+  .sound-check-area {
+    min-height: 27px;
+    margin-bottom: 2px;
+  }
+  .sound-check-button {
+    padding: 2px 9px;
+    font-size: 12px;
+  }
+  #soundCheckStatus {
+    font-size: 10px;
+  }
+}
+
+
+.student-audio-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 0 4px;
+  padding: 3px 8px;
+  border: 2px solid #b9a0df;
+  border-radius: 10px;
+  background: #f7f1ff;
+  color: #553d75;
+  font-size: 12px;
+}
+
+.student-audio-notice strong {
+  font-weight: 900;
+}
+
+@media (orientation: landscape) and (min-width: 850px) {
+  .student-audio-notice {
+    font-size: 10px;
+    line-height: 1.1;
+    padding: 2px 6px;
+    margin-bottom: 2px;
+  }
+}
+
+
+/* ===== 練習 / 合奏モード v2 ===== */
+.lesson-mode-area {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  margin:0 0 4px;
+  padding:3px 7px;
+  background:#f7f1ff;
+  border:2px solid #b9a0df;
+  border-radius:10px;
+}
+.lesson-mode-label,
+#lessonModeStatus {
+  font-size:11px;
+  font-weight:800;
+  color:#553d75;
+}
+.lesson-mode-button {
+  min-height:32px;
+  padding:3px 9px;
+  border:2px solid #9877c4;
+  border-radius:10px;
+  background:#fff;
+  color:#553d75;
+  font-size:12px;
+  font-weight:900;
+}
+.lesson-mode-button.selected-mode {
+  background:#fff3a9;
+  border-color:#e0b94f;
+  color:#624d11;
+}
+.lesson-mode-button:disabled {
+  opacity:.45;
+}
+@media (orientation:landscape) and (min-width:850px) {
+  .lesson-mode-area { margin-bottom:2px; padding:2px 5px; }
+  .lesson-mode-button { min-height:27px; font-size:10px; padding:2px 7px; }
+  .lesson-mode-label, #lessonModeStatus { font-size:9px; }
+}
+
+
+.lesson-mode-area.mac-audio-mode {
+  background: #fff3a9;
+  border-color: #e0b94f;
+}
+
+.lesson-mode-area.mac-audio-mode #practiceModeButton {
+  background: #e9f8eb !important;
+  border-color: #65ad72 !important;
+  color: #356540 !important;
+}
