@@ -5,10 +5,10 @@
   ・GitHub Pages → GASへ接続
   ・GASを親機サーバーとして使用
   ・生徒iPadはGASをポーリング
-  ・Macの時計とGASの時計差を補正
+  ・GASの時計を基準に同期
   ・STARTはGAS時刻を基準に同期
+  ・JSONP方式でGASと通信
 */
-
 
 (() => {
 
@@ -146,45 +146,147 @@
 
 
   /* =========================================
-     GAS GET
+     GAS通信
+     
+     JSONP方式
+     
+     GitHub PagesからGASへ
+     クロスオリジン通信するために使用
   ========================================= */
 
-  async function gasGet(api, params = {}) {
+  function gasGet(api, params = {}) {
 
-    const query =
-      new URLSearchParams({
+    return new Promise((resolve, reject) => {
 
-        api,
-
-        ...params
-
-      });
+      const callbackName =
+        `chairoGAS_${Date.now()}_${Math.random()
+          .toString(36)
+          .slice(2, 8)}`;
 
 
-    const url =
-      `${GAS_URL}?${query.toString()}`;
+      const query =
+        new URLSearchParams({
+
+          api,
+
+          ...params,
+
+          callback:
+            callbackName
+
+        });
 
 
-    const response =
-      await fetch(
-        url,
-        {
-          method: "GET",
-          cache: "no-store"
+      const script =
+        document.createElement("script");
+
+
+      const url =
+        `${GAS_URL}?${query.toString()}`;
+
+
+      let finished = false;
+
+
+      /* -----------------------------------------
+         後片付け
+      ----------------------------------------- */
+
+      const cleanup = () => {
+
+        if (script.parentNode) {
+
+          script.parentNode.removeChild(
+            script
+          );
+
         }
+
+
+        try {
+
+          delete window[callbackName];
+
+        } catch (_) {}
+
+      };
+
+
+      /* -----------------------------------------
+         タイムアウト
+      ----------------------------------------- */
+
+      const timer =
+        setTimeout(() => {
+
+          if (finished) return;
+
+          finished = true;
+
+          cleanup();
+
+          reject(
+            new Error(
+              "GAS request timeout"
+            )
+          );
+
+        }, 10000);
+
+
+      /* -----------------------------------------
+         GASからの返事
+      ----------------------------------------- */
+
+      window[callbackName] = (data) => {
+
+        if (finished) return;
+
+        finished = true;
+
+        clearTimeout(timer);
+
+        cleanup();
+
+        resolve(data);
+
+      };
+
+
+      /* -----------------------------------------
+         通信エラー
+      ----------------------------------------- */
+
+      script.onerror = () => {
+
+        if (finished) return;
+
+        finished = true;
+
+        clearTimeout(timer);
+
+        cleanup();
+
+        reject(
+          new Error(
+            "GAS JSONP connection error"
+          )
+        );
+
+      };
+
+
+      /* -----------------------------------------
+         GASへアクセス
+      ----------------------------------------- */
+
+      script.src = url;
+
+      document.head.appendChild(
+        script
       );
 
-
-    if (!response.ok) {
-
-      throw new Error(
-        `HTTP ${response.status}`
-      );
-
-    }
-
-
-    return response.json();
+    });
 
   }
 
@@ -195,20 +297,27 @@
 
   async function sampleClock() {
 
-    const t0 = Date.now();
+    const t0 =
+      Date.now();
 
 
     const payload =
-      await gasGet("time", {
-        _: t0
-      });
+      await gasGet(
+        "time",
+        {
+          _: t0
+        }
+      );
 
 
-    const t1 = Date.now();
+    const t1 =
+      Date.now();
 
 
     const serverNow =
-      Number(payload.serverNow);
+      Number(
+        payload.serverNow
+      );
 
 
     const rtt =
@@ -284,7 +393,9 @@
     if (!samples.length) {
 
       announce({
+
         clockError: true
+
       });
 
       return false;
@@ -292,7 +403,9 @@
     }
 
 
-    /* RTTが小さいものを優先 */
+    /* -----------------------------------------
+       RTTが小さい通信を優先
+    ----------------------------------------- */
 
     samples.sort(
       (a, b) =>
@@ -322,6 +435,11 @@
       best[0].rtt;
 
 
+    /* -----------------------------------------
+       初回はそのまま
+       2回目以降は少しずつ補正
+    ----------------------------------------- */
+
     if (!clockReady) {
 
       clockOffsetMs =
@@ -340,7 +458,8 @@
       newBestRtt;
 
 
-    clockReady = true;
+    clockReady =
+      true;
 
 
     announce();
@@ -380,7 +499,7 @@
 
 
   /* =========================================
-     ポーリング
+     GASポーリング
   ========================================= */
 
   async function poll() {
@@ -412,11 +531,16 @@
           );
 
 
-        connected = true;
+        connected =
+          true;
 
 
         announce();
 
+
+        /* -----------------------------------------
+           バージョン更新
+        ----------------------------------------- */
 
         if (
           typeof payload.version ===
@@ -432,14 +556,22 @@
         }
 
 
+        /* -----------------------------------------
+           命令が届いた
+        ----------------------------------------- */
+
         if (payload.command) {
 
           listeners.forEach(
             (listener) => {
 
-              listener(
-                payload.command
-              );
+              try {
+
+                listener(
+                  payload.command
+                );
+
+              } catch (_) {}
 
             }
           );
@@ -449,7 +581,8 @@
 
       } catch (error) {
 
-        connected = false;
+        connected =
+          false;
 
 
         announce({
@@ -477,10 +610,9 @@
 
 
   /* =========================================
-     命令送信
+     GASへ命令送信
      
-     POSTではなくGETを使用。
-     校内ネットワーク＋GASで扱いやすくする。
+     GET + JSONP
   ========================================= */
 
   async function send(
@@ -493,13 +625,10 @@
     };
 
 
-    /*
-      STARTの場合は
-      GAS基準時刻で少し先の時刻を指定。
-
-      これにより各iPadが
-      同じ時刻を目標にスタートできる。
-    */
+    /* -----------------------------------------
+       STARTの場合
+       GAS時刻で1.5秒後を指定
+    ----------------------------------------- */
 
     if (
       command === "start" &&
@@ -516,23 +645,23 @@
         );
 
 
-      /*
-        1.5秒後を開始時刻にする。
-        iPad側が命令を受け取る時間を確保。
-      */
-
       sendData.startAt =
         serverNow + 1500;
 
     }
 
 
+    /* -----------------------------------------
+       GASへ送るデータ
+    ----------------------------------------- */
+
     const commandPayload =
       JSON.stringify({
 
         command,
 
-        data: sendData
+        data:
+          sendData
 
       });
 
@@ -633,16 +762,16 @@
      起動
   ========================================= */
 
-  /*
-    最初に時計を同期
-  */
+  /* -----------------------------------------
+     最初に時計を同期
+  ----------------------------------------- */
 
   syncClock(9);
 
 
-  /*
-    15秒ごとに時計を再調整
-  */
+  /* -----------------------------------------
+     15秒ごとに時計を再調整
+  ----------------------------------------- */
 
   setInterval(
     () =>
@@ -651,11 +780,10 @@
   );
 
 
-  /*
-    GASへ接続開始
-  */
+  /* -----------------------------------------
+     GASポーリング開始
+  ----------------------------------------- */
 
   poll();
-
 
 })();
