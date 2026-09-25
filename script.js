@@ -96,6 +96,24 @@ let timer = null;
 let speed = 700;
 let audioContext = null;
 
+const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+
+function ensureAudioContext() {
+  if (!AudioContextClass) {
+    throw new Error("Web Audio API is not supported on this browser.");
+  }
+  if (!audioContext) audioContext = new AudioContextClass();
+  return audioContext;
+}
+
+async function unlockAudioContext() {
+  const context = ensureAudioContext();
+  if (context.state === "suspended") {
+    await context.resume();
+  }
+  return context;
+}
+
 let lessonMode = "practice";
 const pageRole = new URLSearchParams(window.location.search).get("role") || "student";
 const isMacAudioSource = pageRole === "audio";
@@ -232,7 +250,7 @@ function updateMelodyPosition() {
 
 function playTone(frequency, duration = 1) {
   if (!shouldOutputAudio()) return;
-  if (!audioContext) audioContext = new AudioContext();
+  ensureAudioContext();
 
   const oscillator = audioContext.createOscillator();
   const gain = audioContext.createGain();
@@ -363,8 +381,13 @@ function scheduleNext() {
   timer = setTimeout(scheduleNext, speed * (event.duration || 1));
 }
 
-function startSong() {
+async function startSong() {
   if (timer || countInRunning || introRunning) return;
+  try {
+    if (shouldOutputAudio()) await unlockAudioContext();
+  } catch (error) {
+    console.error("Audio unlock failed:", error);
+  }
   if (currentIndex >= currentSong.length) currentIndex = 0;
 
   if (accompanimentOn && currentIndex === 0) {
@@ -509,7 +532,7 @@ function clearAccompanimentTimers() {
 /* Web Audioだけで、少しピアノらしい減衰音を作る */
 function playElectronicPianoTone(frequency, lengthMs = 950, volume = 0.10) {
   if (!shouldOutputAudio()) return;
-  if (!audioContext) audioContext = new AudioContext();
+  ensureAudioContext();
 
   const now = audioContext.currentTime;
   const duration = Math.max(0.50, lengthMs / 1000);
@@ -567,7 +590,7 @@ function playElectronicPianoTone(frequency, lengthMs = 950, volume = 0.10) {
   noise.stop(now + 0.03);
 }function playCountClick(strong = false) {
   if (!shouldOutputAudio()) return;
-  if (!audioContext) audioContext = new AudioContext();
+  ensureAudioContext();
 
   const now = audioContext.currentTime;
 
@@ -618,7 +641,7 @@ const selectedTimbre = "piano";
 
 function playMarimbaTone(frequency, lengthMs = 700, volume = 0.10) {
   if (!shouldOutputAudio()) return;
-  if (!audioContext) audioContext = new AudioContext();
+  ensureAudioContext();
   const now = audioContext.currentTime;
   const duration = Math.max(0.22, Math.min(0.85, lengthMs / 1000));
 
@@ -640,7 +663,7 @@ function playMarimbaTone(frequency, lengthMs = 700, volume = 0.10) {
 
 function playOrganTone(frequency, lengthMs = 850, volume = 0.10) {
   if (!shouldOutputAudio()) return;
-  if (!audioContext) audioContext = new AudioContext();
+  ensureAudioContext();
   const now = audioContext.currentTime;
   const duration = Math.max(0.35, lengthMs / 1000);
 
@@ -664,7 +687,7 @@ function playOrganTone(frequency, lengthMs = 850, volume = 0.10) {
 
 function playSoftSynthTone(frequency, lengthMs = 900, volume = 0.10) {
   if (!shouldOutputAudio()) return;
-  if (!audioContext) audioContext = new AudioContext();
+  ensureAudioContext();
   const now = audioContext.currentTime;
   const duration = Math.max(0.4, lengthMs / 1000);
 
@@ -770,7 +793,7 @@ function accompanimentBassEvents(bar) {
 
 function playHiHat(volume = 0.032) {
   if (!shouldOutputAudio()) return;
-  if (!audioContext) audioContext = new AudioContext();
+  ensureAudioContext();
   const now = audioContext.currentTime;
 
   // 短い高域ノイズで「チッ」というクローズド・ハイハット風
@@ -804,7 +827,7 @@ function playHiHat(volume = 0.032) {
 
 function playSoftKick(volume = 0.055) {
   if (!shouldOutputAudio()) return;
-  if (!audioContext) audioContext = new AudioContext();
+  ensureAudioContext();
   const now = audioContext.currentTime;
 
   const osc = audioContext.createOscillator();
@@ -823,7 +846,7 @@ function playSoftKick(volume = 0.055) {
 
 function playWoodPerc(volume = 0.030) {
   if (!shouldOutputAudio()) return;
-  if (!audioContext) audioContext = new AudioContext();
+  ensureAudioContext();
   const now = audioContext.currentTime;
 
   const osc = audioContext.createOscillator();
@@ -1196,8 +1219,9 @@ window.addEventListener("DOMContentLoaded", () => {
   const button = document.getElementById("soundCheckButton");
   const status = document.getElementById("soundCheckStatus");
 
-  button?.addEventListener("click", () => {
+  button?.addEventListener("click", async () => {
     try {
+      await unlockAudioContext();
       playTone(261.63);
 
       button.textContent = "✅ 音チェックOK";

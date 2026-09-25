@@ -1,4 +1,4 @@
-const CACHE_NAME = "chairo-kobin-v13-visual-part-only";
+const CACHE_NAME = "chairo-kobin-v14-ipad-safari-audio-fix";
 
 const APP_ASSETS = [
   "./",
