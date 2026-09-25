@@ -1152,181 +1152,59 @@ function applyMacNetworkCommand(message) {
   if (handledNetworkCommands.has(message.id)) return;
 
   handledNetworkCommands.add(message.id);
-
   if (handledNetworkCommands.size > 50) {
-    const first =
-      handledNetworkCommands.values().next().value;
-
+    const first = handledNetworkCommands.values().next().value;
     handledNetworkCommands.delete(first);
   }
 
-  /* ================================
-     START
-     ================================ */
-
-  if (
-    message.command === "start" &&
-    message.data?.startAt
-  ) {
-
-    const startAtServer =
-      Number(message.data.startAt);
+  if (message.command === "start" && message.data?.startAt) {
+    const startAtServer = Number(message.data.startAt);
 
     const scheduleStart = () => {
+      const targetLocal = window.ChairoNetwork?.serverToLocalTime
+        ? window.ChairoNetwork.serverToLocalTime(startAtServer)
+        : startAtServer;
 
-      const targetLocal =
-        window.ChairoNetwork?.serverToLocalTime
-          ? window.ChairoNetwork.serverToLocalTime(
-              startAtServer
-            )
-          : startAtServer;
-
-      const remaining =
-        Math.max(
-          0,
-          targetLocal - Date.now()
-        );
+      const remaining = Math.max(0, targetLocal - Date.now());
 
       setTimeout(() => {
         startSong();
       }, remaining);
-
     };
 
-    /*
-      時計同期がまだ終わっていない場合は、
-      先に時計を同期してから開始時刻を計算する。
-    */
-
-    if (
-      window.ChairoNetwork &&
-      !window.ChairoNetwork.clockReady
-    ) {
-
-      window.ChairoNetwork
-        .syncClock(5)
+    // If clock calibration is still finishing, do one quick refresh first.
+    if (window.ChairoNetwork && !window.ChairoNetwork.clockReady) {
+      window.ChairoNetwork.syncClock(5)
         .finally(scheduleStart);
-
     } else {
-
       scheduleStart();
-
     }
 
     return;
   }
 
-  /* ================================
-     START以外
-     ================================ */
-
   applyTeacherCommand(message);
 }
 
-
-/* ================================
-   GASネットワークからの命令受信
-   ================================ */
-
 if (window.ChairoNetwork) {
-
-  window.ChairoNetwork.onCommand(
-    applyMacNetworkCommand
-  );
-
+  window.ChairoNetwork.onCommand(applyMacNetworkCommand);
 }
 
 
-/* ===== iPad Safari 音チェック ===== */
+/* ===== iPad Safari 音チェック（既存の教材音を1回鳴らすだけ） ===== */
+window.addEventListener("DOMContentLoaded", () => {
+  const button = document.getElementById("soundCheckButton");
+  const status = document.getElementById("soundCheckStatus");
 
-window.addEventListener(
-  "DOMContentLoaded",
-  () => {
+  button?.addEventListener("click", () => {
+    try {
+      playTone(261.63);
 
-    const button =
-      document.getElementById(
-        "soundCheckButton"
-      );
-
-    const status =
-      document.getElementById(
-        "soundCheckStatus"
-      );
-
-
-    button?.addEventListener(
-      "click",
-      async () => {
-
-        try {
-
-          /*
-            Safariではユーザー操作の中で
-            AudioContextを起動する必要がある。
-          */
-
-          if (!audioContext) {
-
-            audioContext =
-              new AudioContext();
-
-          }
-
-
-          if (
-            audioContext.state ===
-            "suspended"
-          ) {
-
-            await audioContext.resume();
-
-          }
-
-
-          /*
-            既存の教材音を1回だけ鳴らす。
-          */
-
-          playTone(261.63);
-
-
-          button.textContent =
-            "✅ 音チェックOK";
-
-          button.classList.add(
-            "ready"
-          );
-
-
-          if (status) {
-
-            status.textContent =
-              "先生のスタートを待ってね";
-
-          }
-
-        } catch (error) {
-
-          console.error(
-            "音チェックエラー:",
-            error
-          );
-
-
-          if (status) {
-
-            status.textContent =
-              "もう一度押してね";
-
-          }
-
-        }
-
-      }
-    );
-
-  }
-);
-}
-
-
+      button.textContent = "✅ 音チェックOK";
+      button.classList.add("ready");
+      if (status) status.textContent = "先生のスタートを待ってね";
+    } catch (error) {
+      if (status) status.textContent = "もう一度押してね";
+    }
+  });
+});
