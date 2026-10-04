@@ -1,0 +1,5 @@
+iPad Safari互換テスト版
+・optional chaining (?.) / nullish coalescing (??) を使わない形に変更
+・AudioContext / webkitAudioContext 両対応
+・Service Worker登録を一旦停止（古いキャッシュ切り分け用）
+・楽譜、音程、伴奏データ、パート構成は変更していません。
