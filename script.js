@@ -96,6 +96,14 @@ let timer = null;
 let speed = 700;
 let audioContext = null;
 
+// Mac親機同期用：本編は「前のタイマーが終わってから次へ」ではなく、
+// Macから受け取った絶対時刻を基準に進める。
+// iPad Safariで少しずつ遅れが累積するのを防ぐ。
+let networkAbsoluteMode = false;
+let networkSongStartAt = 0;
+let networkElapsedMs = 0;
+let networkBodyTimer = null;
+
 let lessonMode = "practice";
 const pageRole = new URLSearchParams(window.location.search).get("role") || "student";
 const isMacAudioSource = pageRole === "audio";
@@ -363,6 +371,72 @@ function scheduleNext() {
   timer = setTimeout(scheduleNext, speed * (event.duration || 1));
 }
 
+
+function scheduleNextNetworkAbsolute() {
+  if (!networkAbsoluteMode) return;
+
+  if (currentIndex >= currentSong.length) {
+    networkAbsoluteMode = false;
+    finishSong();
+    return;
+  }
+
+  const event = currentSong[currentIndex];
+  showCurrentEvent();
+  currentIndex += 1;
+
+  networkElapsedMs += speed * (event.duration || 1);
+  const nextTarget = networkSongStartAt + networkElapsedMs;
+  const remaining = Math.max(0, nextTarget - Date.now());
+
+  timer = setTimeout(scheduleNextNetworkAbsolute, remaining);
+}
+
+function beginNetworkBodyAt(bodyStartLocal) {
+  clearTimeout(networkBodyTimer);
+  networkBodyTimer = null;
+
+  // 前奏側の残ったタイマーをここで切り、全端末を本編の頭に再同期する。
+  clearAccompanimentTimers();
+  countInRunning = false;
+  introRunning = false;
+  clearHighlights();
+
+  networkAbsoluteMode = true;
+  networkSongStartAt = bodyStartLocal;
+  networkElapsedMs = 0;
+  timer = null;
+
+  scheduleNextNetworkAbsolute();
+}
+
+function startSongFromMacAt(targetLocal) {
+  if (timer || countInRunning || introRunning || networkBodyTimer) return;
+  if (currentIndex >= currentSong.length) currentIndex = 0;
+
+  const freshStart = currentIndex === 0;
+  const hasLeadIn = accompanimentOn && freshStart;
+  const bodyStartLocal = targetLocal + (hasLeadIn ? 24 * speed : 0);
+
+  // カウント＋前奏の見た目・Mac伴奏は従来どおり。
+  // ただし本編開始は別タイマーで絶対時刻に固定する。
+  const untilStart = Math.max(0, targetLocal - Date.now());
+  setTimeout(() => {
+    if (hasLeadIn) {
+      runCountIn(() => {
+        runIntro(() => {
+          // 本編は beginNetworkBodyAt() が絶対時刻で開始する。
+        });
+      });
+    }
+  }, untilStart);
+
+  const untilBody = Math.max(0, bodyStartLocal - Date.now());
+  networkBodyTimer = setTimeout(() => {
+    beginNetworkBodyAt(bodyStartLocal);
+  }, untilBody);
+}
+
 function startSong() {
   if (timer || countInRunning || introRunning) return;
   if (currentIndex >= currentSong.length) currentIndex = 0;
@@ -379,6 +453,11 @@ function startSong() {
 }
 
 function pauseSong() {
+  networkAbsoluteMode = false;
+  if (networkBodyTimer) {
+    clearTimeout(networkBodyTimer);
+    networkBodyTimer = null;
+  }
   clearAccompanimentTimers();
   if (!timer) return;
   clearTimeout(timer);
@@ -388,6 +467,13 @@ function pauseSong() {
 }
 
 function stopSong() {
+  networkAbsoluteMode = false;
+  networkSongStartAt = 0;
+  networkElapsedMs = 0;
+  if (networkBodyTimer) {
+    clearTimeout(networkBodyTimer);
+    networkBodyTimer = null;
+  }
   clearAccompanimentTimers();
   if (timer) clearTimeout(timer);
 
@@ -1168,7 +1254,7 @@ function applyMacNetworkCommand(message) {
       const remaining = Math.max(0, targetLocal - Date.now());
 
       setTimeout(() => {
-        startSong();
+        startSongFromMacAt(targetLocal);
       }, remaining);
     };
 
