@@ -138,7 +138,7 @@ class Handler(SimpleHTTPRequestHandler):
         command = str(body.get("command") or "")
         data = body.get("data") or {}
 
-        if command not in {"start", "pause", "stop", "speed", "accompaniment"}:
+        if command not in {"start", "pause", "stop", "speed", "accompaniment", "position"}:
             self.send_json({"error": "unknown command"}, 400)
             return
 
