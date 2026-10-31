@@ -23,7 +23,7 @@
   function currentPartLabel() {
     try {
       const instrument =
-        (function(){ var el=document.querySelector(".instrument-button.selected-mode"); return el && el.textContent ? el.textContent.trim() : ""; })();
+        document.querySelector(".instrument-button.selected-mode")?.textContent?.trim() || "";
 
       const visibleGroups = [
         document.getElementById("xylophoneModeButtons"),
@@ -32,7 +32,7 @@
       ].filter((el) => el && !el.classList.contains("hidden"));
 
       const part =
-        (function(){ var el=visibleGroups[0] ? visibleGroups[0].querySelector(".part-button.selected-mode") : null; return el && el.textContent ? el.textContent.trim() : ""; })();
+        visibleGroups[0]?.querySelector(".part-button.selected-mode")?.textContent?.trim() || "";
 
       return `${instrument} ${part}`.trim();
     } catch (_) {
@@ -139,7 +139,7 @@
         }
       } catch (error) {
         connected = false;
-        announce({ error: (error && error.message) || String(error) });
+        announce({ error: error?.message || String(error) });
         await new Promise((resolve) => setTimeout(resolve, 700));
       }
     }

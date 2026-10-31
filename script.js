@@ -130,8 +130,8 @@ function setLessonMode(mode) {
     return;
   }
 
-  if (practiceButton) practiceButton.classList.toggle("selected-mode", lessonMode === "practice");
-  if (ensembleButton) ensembleButton.classList.toggle("selected-mode", lessonMode === "ensemble");
+  practiceButton?.classList.toggle("selected-mode", lessonMode === "practice");
+  ensembleButton?.classList.toggle("selected-mode", lessonMode === "ensemble");
 
   if (status) {
     status.textContent = lessonMode === "practice"
@@ -149,14 +149,13 @@ window.addEventListener("DOMContentLoaded", () => {
   const ensembleButton = document.getElementById("ensembleModeButton");
 
   if (isMacAudioSource) {
-    const lessonModeArea = document.querySelector(".lesson-mode-area");
-    if (lessonModeArea) lessonModeArea.classList.add("mac-audio-mode");
+    document.querySelector(".lesson-mode-area")?.classList.add("mac-audio-mode");
     setLessonMode("practice");
     return;
   }
 
-  if (practiceButton) practiceButton.addEventListener("click", () => setLessonMode("practice"));
-  if (ensembleButton) ensembleButton.addEventListener("click", () => setLessonMode("ensemble"));
+  practiceButton?.addEventListener("click", () => setLessonMode("practice"));
+  ensembleButton?.addEventListener("click", () => setLessonMode("ensemble"));
 
   let saved = "practice";
   try {
@@ -233,7 +232,7 @@ function updateMelodyPosition() {
 
 function playTone(frequency, duration = 1) {
   if (!shouldOutputAudio()) return;
-  if (!audioContext) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return; audioContext = new AC(); }
+  if (!audioContext) audioContext = new AudioContext();
 
   const oscillator = audioContext.createOscillator();
   const gain = audioContext.createGain();
@@ -284,8 +283,8 @@ function showCurrentEvent() {
       ? bellModeButtons
       : bassModeButtons;
 
-  const visibleButton = visibleGroup ? visibleGroup.querySelector(".part-button.selected-mode") : null;
-  const visibleMode = (visibleButton && visibleButton.dataset && visibleButton.dataset.mode) || selectedMode;
+  const visibleButton = visibleGroup?.querySelector(".part-button.selected-mode");
+  const visibleMode = visibleButton?.dataset?.mode || selectedMode;
 
   let visiblePart = null;
   if (selectedInstrument === "bass") {
@@ -329,7 +328,7 @@ function showCurrentEvent() {
       const keyArea = selectedInstrument === "bells"
         ? document.getElementById("bellKeys")
         : document.getElementById("xylophoneKeys");
-      const key = keyArea ? keyArea.querySelector(`.xylophone-key[data-note="${note}"]`) : null;
+      const key = keyArea?.querySelector(`.xylophone-key[data-note="${note}"]`);
       if (key) {
         key.classList.add("active");
         key.textContent = `${note} ${number}`;
@@ -344,7 +343,7 @@ function showCurrentEvent() {
     const keyArea = selectedInstrument === "bells"
         ? document.getElementById("bellKeys")
         : document.getElementById("xylophoneKeys");
-      const key = keyArea ? keyArea.querySelector(`.xylophone-key[data-note="${note}"]`) : null;
+      const key = keyArea?.querySelector(`.xylophone-key[data-note="${note}"]`);
     if (key) showPartnerKey(key, note, number);
   }
 
@@ -365,9 +364,6 @@ function scheduleNext() {
 }
 
 function startSong() {
-  if (audioContext && audioContext.state === "suspended") {
-    try { audioContext.resume(); } catch (_) {}
-  }
   if (timer || countInRunning || introRunning) return;
   if (currentIndex >= currentSong.length) currentIndex = 0;
 
@@ -513,7 +509,7 @@ function clearAccompanimentTimers() {
 /* Web Audioだけで、少しピアノらしい減衰音を作る */
 function playElectronicPianoTone(frequency, lengthMs = 950, volume = 0.10) {
   if (!shouldOutputAudio()) return;
-  if (!audioContext) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return; audioContext = new AC(); }
+  if (!audioContext) audioContext = new AudioContext();
 
   const now = audioContext.currentTime;
   const duration = Math.max(0.50, lengthMs / 1000);
@@ -571,7 +567,7 @@ function playElectronicPianoTone(frequency, lengthMs = 950, volume = 0.10) {
   noise.stop(now + 0.03);
 }function playCountClick(strong = false) {
   if (!shouldOutputAudio()) return;
-  if (!audioContext) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return; audioContext = new AC(); }
+  if (!audioContext) audioContext = new AudioContext();
 
   const now = audioContext.currentTime;
 
@@ -622,7 +618,7 @@ const selectedTimbre = "piano";
 
 function playMarimbaTone(frequency, lengthMs = 700, volume = 0.10) {
   if (!shouldOutputAudio()) return;
-  if (!audioContext) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return; audioContext = new AC(); }
+  if (!audioContext) audioContext = new AudioContext();
   const now = audioContext.currentTime;
   const duration = Math.max(0.22, Math.min(0.85, lengthMs / 1000));
 
@@ -644,7 +640,7 @@ function playMarimbaTone(frequency, lengthMs = 700, volume = 0.10) {
 
 function playOrganTone(frequency, lengthMs = 850, volume = 0.10) {
   if (!shouldOutputAudio()) return;
-  if (!audioContext) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return; audioContext = new AC(); }
+  if (!audioContext) audioContext = new AudioContext();
   const now = audioContext.currentTime;
   const duration = Math.max(0.35, lengthMs / 1000);
 
@@ -668,7 +664,7 @@ function playOrganTone(frequency, lengthMs = 850, volume = 0.10) {
 
 function playSoftSynthTone(frequency, lengthMs = 900, volume = 0.10) {
   if (!shouldOutputAudio()) return;
-  if (!audioContext) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return; audioContext = new AC(); }
+  if (!audioContext) audioContext = new AudioContext();
   const now = audioContext.currentTime;
   const duration = Math.max(0.4, lengthMs / 1000);
 
@@ -774,7 +770,7 @@ function accompanimentBassEvents(bar) {
 
 function playHiHat(volume = 0.032) {
   if (!shouldOutputAudio()) return;
-  if (!audioContext) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return; audioContext = new AC(); }
+  if (!audioContext) audioContext = new AudioContext();
   const now = audioContext.currentTime;
 
   // 短い高域ノイズで「チッ」というクローズド・ハイハット風
@@ -808,7 +804,7 @@ function playHiHat(volume = 0.032) {
 
 function playSoftKick(volume = 0.055) {
   if (!shouldOutputAudio()) return;
-  if (!audioContext) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return; audioContext = new AC(); }
+  if (!audioContext) audioContext = new AudioContext();
   const now = audioContext.currentTime;
 
   const osc = audioContext.createOscillator();
@@ -827,7 +823,7 @@ function playSoftKick(volume = 0.055) {
 
 function playWoodPerc(volume = 0.030) {
   if (!shouldOutputAudio()) return;
-  if (!audioContext) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return; audioContext = new AC(); }
+  if (!audioContext) audioContext = new AudioContext();
   const now = audioContext.currentTime;
 
   const osc = audioContext.createOscillator();
@@ -1085,7 +1081,7 @@ function applyTeacherCommand(message) {
       break;
 
     case "speed": {
-      const requestedSpeed = String(message.data && message.data.speed != null ? message.data.speed : "");
+      const requestedSpeed = String(message.data?.speed ?? "");
       const targetButton = Array.from(speedButtons).find(
         (button) => button.dataset.speed === requestedSpeed
       );
@@ -1096,7 +1092,7 @@ function applyTeacherCommand(message) {
     }
 
     case "accompaniment": {
-      const shouldBeOn = Boolean(message.data && message.data.on);
+      const shouldBeOn = Boolean(message.data?.on);
       if (accompanimentOn !== shouldBeOn) {
         accompanimentButton.click();
       }
@@ -1120,23 +1116,23 @@ function applyCompactInstrumentKeyboard() {
   const partTitle = document.getElementById("partSelectionTitle");
 
   if (selectedInstrument === "bass") {
-    if (colorArea) colorArea.classList.add("hidden");
-    if (bassArea) bassArea.classList.remove("hidden");
+    colorArea?.classList.add("hidden");
+    bassArea?.classList.remove("hidden");
     if (partTitle) partTitle.textContent = "パート（ベース）";
     return;
   }
 
-  if (bassArea) bassArea.classList.add("hidden");
-  if (colorArea) colorArea.classList.remove("hidden");
+  bassArea?.classList.add("hidden");
+  colorArea?.classList.remove("hidden");
 
   if (selectedInstrument === "bells") {
-    if (xylophoneKeys) xylophoneKeys.classList.add("hidden");
-    if (bellKeys) bellKeys.classList.remove("hidden");
+    xylophoneKeys?.classList.add("hidden");
+    bellKeys?.classList.remove("hidden");
     if (title) title.textContent = "ハンドベルを ならす ところ";
     if (partTitle) partTitle.textContent = "パートを えらぶ（ハンドベル）";
   } else {
-    if (bellKeys) bellKeys.classList.add("hidden");
-    if (xylophoneKeys) xylophoneKeys.classList.remove("hidden");
+    bellKeys?.classList.add("hidden");
+    xylophoneKeys?.classList.remove("hidden");
     if (title) title.textContent = "もっきんを たたく ところ";
     if (partTitle) partTitle.textContent = "パートを えらぶ（もっきん）";
   }
@@ -1161,11 +1157,11 @@ function applyMacNetworkCommand(message) {
     handledNetworkCommands.delete(first);
   }
 
-  if (message.command === "start" && message.data && message.data.startAt) {
+  if (message.command === "start" && message.data?.startAt) {
     const startAtServer = Number(message.data.startAt);
 
     const scheduleStart = () => {
-      const targetLocal = window.ChairoNetwork && window.ChairoNetwork.serverToLocalTime
+      const targetLocal = window.ChairoNetwork?.serverToLocalTime
         ? window.ChairoNetwork.serverToLocalTime(startAtServer)
         : startAtServer;
 
@@ -1200,7 +1196,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const button = document.getElementById("soundCheckButton");
   const status = document.getElementById("soundCheckStatus");
 
-  if (button) button.addEventListener("click", () => {
+  button?.addEventListener("click", () => {
     try {
       playTone(261.63);
 

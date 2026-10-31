@@ -24,7 +24,7 @@ async function send(command, data = {}, label = "") {
 
     statusText.textContent = "同期機能を準備中です";
   } catch (error) {
-    statusText.textContent = "送信できません：" + ((error && error.message) || error);
+    statusText.textContent = "送信できません：" + (error?.message || error);
   }
 }
 
@@ -72,7 +72,7 @@ async function refreshClientStatus() {
 
   try {
     const status = await window.ChairoNetwork.getStatus();
-    if (connectedCount) connectedCount.textContent = String(status && status.count != null ? status.count : 0);
+    if (connectedCount) connectedCount.textContent = String(status.count ?? 0);
   } catch (_) {}
 }
 
