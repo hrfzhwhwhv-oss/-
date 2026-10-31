@@ -99,58 +99,6 @@ let audioContext = null;
 let lessonMode = "practice";
 const pageRole = new URLSearchParams(window.location.search).get("role") || "student";
 const isMacAudioSource = pageRole === "audio";
-let followingMacPosition = false;
-let networkVisualOnly = false;
-
-function beatsBeforeIndex(song, index) {
-  let total = 0;
-  for (let i = 0; i < index && i < song.length; i += 1) {
-    total += Number(song[i].duration || 1);
-  }
-  return total;
-}
-
-function indexForBeat(song, beat) {
-  let elapsed = 0;
-  for (let i = 0; i < song.length; i += 1) {
-    const duration = Number(song[i].duration || 1);
-    if (beat < elapsed + duration) return i;
-    elapsed += duration;
-  }
-  return song.length;
-}
-
-function sendMasterPosition(beat) {
-  if (!isMacAudioSource || !window.ChairoNetwork) return;
-  window.ChairoNetwork.send("position", { beat: Number(beat) }).catch(() => {});
-}
-
-function followMasterBeat(beat) {
-  if (isMacAudioSource) return;
-
-  followingMacPosition = true;
-
-  // Stop the iPad's independent body timer so drift cannot accumulate.
-  if (timer) {
-    clearTimeout(timer);
-    timer = null;
-  }
-
-  countInRunning = false;
-  introRunning = false;
-  clearAccompanimentTimers();
-
-  const targetIndex = indexForBeat(currentSong, Number(beat));
-  if (targetIndex >= currentSong.length) {
-    finishSong();
-    return;
-  }
-
-  currentIndex = targetIndex;
-  networkVisualOnly = true;
-  showCurrentEvent();
-  networkVisualOnly = false;
-}
 const MODE_STORAGE_KEY = "chairo-kobin-lesson-mode-v3";
 
 /*
@@ -283,7 +231,6 @@ function updateMelodyPosition() {
 }
 
 function playTone(frequency, duration = 1) {
-  if (networkVisualOnly) return;
   if (!shouldOutputAudio()) return;
   if (!audioContext) audioContext = new AudioContext();
 
@@ -321,11 +268,7 @@ function showCurrentEvent() {
 
   const event = currentSong[currentIndex];
 
-  if (isMacAudioSource) {
-    sendMasterPosition(beatsBeforeIndex(currentSong, currentIndex));
-  }
-
-  if (accompanimentOn && !networkVisualOnly) {
+  if (accompanimentOn) {
     const previous = currentIndex > 0 ? currentSong[currentIndex - 1] : null;
     if (!previous || previous.bar !== event.bar) playAccompanimentBar(event.bar);
   }
@@ -445,8 +388,6 @@ function pauseSong() {
 }
 
 function stopSong() {
-  followingMacPosition = false;
-  networkVisualOnly = false;
   clearAccompanimentTimers();
   if (timer) clearTimeout(timer);
 
@@ -1214,11 +1155,6 @@ function applyMacNetworkCommand(message) {
   if (handledNetworkCommands.size > 50) {
     const first = handledNetworkCommands.values().next().value;
     handledNetworkCommands.delete(first);
-  }
-
-  if (message.command === "position" && message.data && message.data.beat != null) {
-    followMasterBeat(Number(message.data.beat));
-    return;
   }
 
   if (message.command === "start" && message.data?.startAt) {
